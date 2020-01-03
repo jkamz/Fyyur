@@ -8,6 +8,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import ARRAY
 from flask_migrate import Migrate
 import logging
 from logging import Formatter, FileHandler
@@ -41,6 +42,10 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    genres = db.Column(ARRAY(db.String))
+    website = db.Column(db.String)
+    seeking_talent = db.Column(db.Boolean(), nullable=False, default=False)
+    seeking_description = db.Column(db.String)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
