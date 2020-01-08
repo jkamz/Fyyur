@@ -5,15 +5,19 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, json
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm.attributes import QueryableAttribute
 from flask_migrate import Migrate
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+
+
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -31,7 +35,132 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
-class Venue(db.Model):
+class MySerializer(db.Model):
+    
+    #Tell sqlalchemy not to create table for this model by making class abstract
+    __abstract__ = True
+
+    def to_json(self, show=None, _hide=[], _path=None):
+        """ Returns a dic representation of model"""
+
+        show = show or []
+
+        hidden = self._hidden_fields if hasattr(self, "_hidden_fields") else []
+        default = self._default_fields if hasattr(self, "_default_fields") else []
+
+        if not _path:
+            _path = self.__tablename__.lower()
+
+            def prepend_path(entry):
+                entry = entry.lower()
+                if entry.split(".", 1)[0] == _path:
+                    return entry
+                if len(entry) == 0:
+                    return entry
+                if entry[0] != ".":
+                    entry = ".%s" % entry
+                
+                entry = "%s%s" % (_path, entry)
+                return entry
+            
+            _hide[:] = [prepend_path(x) for x in _hide]
+            show[:] = [prepend_path(x) for x in show]
+
+        columns = self.__table__.columns.keys()
+        relationships = self.__mapper__.relationships.keys()
+        properties = dir(self)
+
+        data = {}
+
+        for key in columns:
+            if key.startswith("_"):
+                continue
+            check = "%s.%s" % (_path, key)
+
+            if check in _hide or key in hidden:
+                continue
+
+            if check in show or key in default:
+                data[key] = getattr(self, key)
+            
+        
+        for key in relationships:
+            if key.startswith("_"):
+                continue
+            check = "%s.%s" % (_path, key)
+
+            if check in _hide or key in hidden:
+                continue
+
+            if check in show or key in default:
+                _hide.append(check)
+                is_list = self.__mapper__.relationships[key].uselist
+                if is_list:
+                    items = getattr(self, key)
+                    if self.__mapper__.relationships[key].query_class is not None:
+                        if hasattr(items, "all"):
+                            items = items.all()
+                    
+                    data[key] = []
+                    for item in items:
+                        data[key].append(
+                            item.to_dict(
+                                show = list(show),
+                                _hide = list(_hide),
+                                _path = ("%s.%s") % (_path, key.lower())
+                            )
+                        )
+                else:
+                    if(
+                        self.__mapper__.relationships[key].query_class is not None
+                        or self.__mapper__.relationships[key].instrument_class is not None
+                    ):
+
+                        item = getattr(self, key)
+                        if item is not None:
+                            data[key] = item.to_dict(
+                                    show = list(show),
+                                    _hide = list(_hide),
+                                    _path = ("%s.%s") % (_path, key.lower())
+                                )
+                        else:
+                            data[key] = None
+                    
+                    else:
+                        data[key] = getattr(self, key)
+        
+        for key in list(set(properties) - set(columns) - set(relationships)):
+            if key.startswith("_"):
+                continue
+            if not hasattr(self.__class__, key):
+                continue
+
+            attr = getattr(self.__class__, key)
+            if not (isinstance(attr, property) or isinstance(attr, QueryableAttribute)):
+                continue
+
+            check =  "%s.%s" % (_path, key)
+            if check in _hide or key in hidden:
+                continue
+
+            if check in show or key in default:
+                val = getattr(self, key)
+                if hasattr(val, "to_dict"):
+                    data[key] = val.to_dict(
+                        show = list(show),
+                        _hide = list(_hide),
+                        _path = ("%s.%s") % (_path, key.lower())
+                    )
+                
+                else:
+                    try:
+                        data[key] = json.loads(json.dumps(val))
+                    except:
+                        pass
+        
+        return data
+
+class Venue(MySerializer):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -48,9 +177,16 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String)
     artists = db.relationship("Show", back_populates="venue")
 
+
+    _default_fields = [
+      "id",
+      "name",
+      "genres"
+    ]
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
-class Artist(db.Model):
+class Artist(MySerializer):
     __tablename__ = 'Artist'
 
     id = db.Column(db.Integer, primary_key=True)
