@@ -708,6 +708,9 @@ def create_show_submission():
           artist = artist
         )
 
+        db.session.add(data)
+        db.session.commit()
+
     except expression as identifier:
       pass
     finally:
