@@ -411,6 +411,11 @@ def create_venue_submission():
     finally:
       db.session.close()
       return render_template('pages/home.html')
+  
+  # catch validation errors
+  flash('An error occurred. Venue could not be listed.')
+  return render_template('pages/home.html')
+  
   # TODO: insert form data as a new Venue record in the db,  -- done
   # TODO: modify data to be the data object returned from db insertion
   
