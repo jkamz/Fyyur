@@ -711,8 +711,8 @@ def create_show_submission():
         db.session.add(data)
         db.session.commit()
 
-    except expression as identifier:
-      pass
+    except:
+      flash('An error occurred. Show could not be listed.') 
     finally:
       pass
   # TODO: insert form data as a new Show record in the db, instead
