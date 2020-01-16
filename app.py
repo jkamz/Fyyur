@@ -211,7 +211,7 @@ class Show(db.Model):
 
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False, primary_key=True)
     artist = db.relationship('Artist', back_populates="venues")
     venue = db.relationship('Venue', back_populates="artists")
 
@@ -694,26 +694,29 @@ def create_show_submission():
 
   if form.validate_on_submit():
     try:
-      artist = Artist.query.get(form.artist_id.data)
       venue = Venue.query.get(form.venue_id.data)
-
+      artist = Artist.query.get(form.artist_id.data)
+      
       if not artist:
         flash('Error! Artist with id ' + form.artist_id.data + 'does not exist!')
       elif not venue:
         flash('Error! Venue with id ' + form.venue_id.data + 'does not exist!')
       else:
-        data = Show(
+        show = Show(
           start_time = form.start_time.data,
-          venue = venue,
-          artist = artist
         )
 
-        db.session.add(data)
+        show.artist = artist
+        with db.session.no_autoflush:
+          venue.artists.append(show)
+
+        db.session.add(show)
         db.session.commit()
 
         flash('Show was successfully listed!')
-    except:
+    except err:
       flash('An error occurred. Show could not be listed.')
+      # print("error here is %s", err)
       db.session.rollback()  
     finally:
       db.session.close()
