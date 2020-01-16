@@ -696,6 +696,10 @@ def create_show_submission():
     try:
       venue = Venue.query.get(form.venue_id.data)
       artist = Artist.query.get(form.artist_id.data)
+
+      start_time = form.start_time.data
+
+      exists = bool(Show.query.filter_by(artist=artist,venue=venue,start_time=start_time).first())
       
       if not artist:
         flash('Error! Artist with id ' + form.artist_id.data + 'does not exist!')
@@ -703,7 +707,7 @@ def create_show_submission():
         flash('Error! Venue with id ' + form.venue_id.data + 'does not exist!')
       else:
         show = Show(
-          start_time = form.start_time.data,
+          start_time = start_time,
         )
 
         show.artist = artist
