@@ -601,6 +601,16 @@ def create_artist_form():
 def create_artist_submission():
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
+
+  form = ArtistForm()
+  try:
+    data = (
+      
+    )
+  except expression as identifier:
+    pass
+  finally:
+    pass
   # TODO: modify data to be the data object returned from db insertion
 
   # on successful db insert, flash success
