@@ -631,9 +631,10 @@ def create_artist_submission():
     else:
       db.session.add(data)
       db.session.commit()
-      flash('Venue ' + request.form['name'] + ' was successfully listed!')
+      flash('Artist ' + request.form['name'] + ' was successfully listed!')
   except:
-    pass
+    #on unsuccessful db insert, flash an error instead.
+    flash('An error occurred. Artist ' + data.name + ' could not be listed.')
   finally:
     pass
   # TODO: modify data to be the data object returned from db insertion
