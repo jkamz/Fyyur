@@ -635,6 +635,7 @@ def create_artist_submission():
   except:
     #on unsuccessful db insert, flash an error instead.
     flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+    db.session.rollback()
   finally:
     pass
   # TODO: modify data to be the data object returned from db insertion
