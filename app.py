@@ -605,7 +605,13 @@ def create_artist_submission():
   form = ArtistForm()
   try:
     data = (
-      
+      name = form.name.data,
+      city = form.city.data,
+      state = form.state.data,
+      address = form.address.data,
+      phone = form.phone.data,
+      genres = form.genres.data,
+      facebook_link = form.facebook_link.data
     )
   except expression as identifier:
     pass
