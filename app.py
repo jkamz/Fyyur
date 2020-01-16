@@ -717,13 +717,14 @@ def create_show_submission():
       db.session.rollback()  
     finally:
       db.session.close()
+      return render_template('pages/home.html')
   # TODO: insert form data as a new Show record in the db, instead
 
   # on successful db insert, flash success
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Show could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+  
 
 @app.errorhandler(404)
 def not_found_error(error):
