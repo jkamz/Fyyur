@@ -689,6 +689,19 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
+
+  form = ShowForm()
+
+  if form.validate_on_submit():
+    try:
+      artist = Artist.query.get(form.artist_id.data)
+      venue = Venue.query.get(form.venue_id.data)
+
+      
+    except expression as identifier:
+      pass
+    finally:
+      pass
   # TODO: insert form data as a new Show record in the db, instead
 
   # on successful db insert, flash success
