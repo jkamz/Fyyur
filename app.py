@@ -613,7 +613,10 @@ def create_artist_submission():
       genres = form.genres.data,
       facebook_link = form.facebook_link.data
     )
-  except expression as identifier:
+
+    # check if artist exists already
+    exists = bool(Venue.query.filter_by(name = data.name, address = data.address, phone=data.phone))
+  except:
     pass
   finally:
     pass
