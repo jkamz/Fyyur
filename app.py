@@ -616,6 +616,12 @@ def create_artist_submission():
 
     # check if artist exists already
     exists = bool(Venue.query.filter_by(name = data.name, address = data.address, phone=data.phone))
+    if exists:
+      # avoid saving duplicate venues
+      flash('Error! Artist ' + request.form['name'] + ' already exists!')
+    else:
+      
+
   except:
     pass
   finally:
