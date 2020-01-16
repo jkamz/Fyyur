@@ -604,7 +604,7 @@ def create_artist_submission():
 
   form = ArtistForm()
   try:
-    data = (
+    data = Artist(
       name = form.name.data,
       city = form.city.data,
       state = form.state.data,
@@ -614,6 +614,15 @@ def create_artist_submission():
       facebook_link = form.facebook_link.data
     )
 
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    except:
+      #on unsuccessful db insert, flash an error instead.
+      flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+      db.session.rollback()
+    finally:
+      db.session.close()
+      return render_template('pages/home.html')
+
     # check if artist exists already
     exists = bool(Venue.query.filter_by(name = data.name, address = data.address, phone=data.phone))
     if exists:
@@ -622,6 +631,7 @@ def create_artist_submission():
     else:
       db.session.add(data)
       db.session.commit()
+      flash('Venue ' + request.form['name'] + ' was successfully listed!')
   except:
     pass
   finally:
