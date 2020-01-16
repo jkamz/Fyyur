@@ -705,6 +705,8 @@ def create_show_submission():
         flash('Error! Artist with id ' + form.artist_id.data + 'does not exist!')
       elif not venue:
         flash('Error! Venue with id ' + form.venue_id.data + 'does not exist!')
+      elif exists:
+        flash('Error! A similar show exists already!')
       else:
         show = Show(
           start_time = start_time,
