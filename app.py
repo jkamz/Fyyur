@@ -697,7 +697,9 @@ def create_show_submission():
       artist = Artist.query.get(form.artist_id.data)
       venue = Venue.query.get(form.venue_id.data)
 
-      
+      if not artist:
+        flash('Error! Artist with id ' + form.artist_id.data + 'does not exist!')
+
     except expression as identifier:
       pass
     finally:
