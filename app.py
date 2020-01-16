@@ -620,8 +620,8 @@ def create_artist_submission():
       # avoid saving duplicate venues
       flash('Error! Artist ' + request.form['name'] + ' already exists!')
     else:
-      
-
+      db.session.add(data)
+      db.session.commit()
   except:
     pass
   finally:
