@@ -604,32 +604,36 @@ def create_artist_submission():
 
   form = ArtistForm()
   # import pdb; pdb.set_trace()
-  try:
-    data = Artist(
-        name = form.name.data,
-        city = form.city.data,
-        state = form.state.data,
-        phone = form.phone.data,
-        genres = form.genres.data,
-        facebook_link = form.facebook_link.data
-      )
-    # check if artist exists already
-    exists = bool(Artist.query.filter_by(name = data.name, phone=data.phone).first())
-    if exists:
-      # avoid saving duplicate venues
-      flash('Error! Artist ' + request.form['name'] + ' already exists!')
-    else:
-      db.session.add(data)
-      db.session.commit()
-      flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  except:
-    #on unsuccessful db insert, flash an error instead.
-    flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-    db.session.rollback()
-  finally:
-    db.session.close()
-    return render_template('pages/home.html')
-
+  if form.validate_on_submit():
+    try:
+      data = Artist(
+          name = form.name.data,
+          city = form.city.data,
+          state = form.state.data,
+          phone = form.phone.data,
+          genres = form.genres.data,
+          facebook_link = form.facebook_link.data
+        )
+      # check if artist exists already
+      exists = bool(Artist.query.filter_by(name = data.name, phone=data.phone).first())
+      if exists:
+        # avoid saving duplicate venues
+        flash('Error! Artist ' + request.form['name'] + ' already exists!')
+      else:
+        db.session.add(data)
+        db.session.commit()
+        flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    except:
+      #on unsuccessful db insert, flash an error instead.
+      flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+      db.session.rollback()
+    finally:
+      db.session.close()
+      return render_template('pages/home.html')
+  
+  #catch validation errors
+  flash('An error occurred. Artist was not created')
+  return render_template('pages/home.html')
 
   # TODO: modify data to be the data object returned from db insertion
 
@@ -720,9 +724,8 @@ def create_show_submission():
         db.session.commit()
 
         flash('Show was successfully listed!')
-    except err:
+    except:
       flash('An error occurred. Show could not be listed.')
-      # print("error here is %s", err)
       db.session.rollback()  
     finally:
       db.session.close()
