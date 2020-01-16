@@ -391,13 +391,19 @@ def create_venue_submission():
         genres = form.genres.data,
         facebook_link = form.facebook_link.data
       )
+      
 
+      # check if venue exists already
+      exists = bool(Venue.query.filter_by(name = data.name, address = data.address))
+      if exists:
+        # avoid saving duplicate venues
+        flash('Error! Venue ' + request.form['name'] + ' already exists!')
+      else:
+        db.session.add(data)
+        db.session.commit()
 
-      db.session.add(data)
-      db.session.commit()
-
-      # on successful db insert, flash success
-      flash('Venue ' + request.form['name'] + ' was successfully listed!')
+        # on successful db insert, flash success
+        flash('Venue ' + request.form['name'] + ' was successfully listed!')
     except:
       #on unsuccessful db insert, flash an error instead.
       flash('An error occurred. Venue ' + data.name + ' could not be listed.')
