@@ -394,7 +394,7 @@ def create_venue_submission():
       
 
       # check if venue exists already
-      exists = bool(Venue.query.filter_by(name = data.name, address = data.address))
+      exists = bool(Venue.query.filter_by(name = data.name, address = data.address).first())
       if exists:
         # avoid saving duplicate venues
         flash('Error! Venue ' + request.form['name'] + ' already exists!')
@@ -603,28 +603,18 @@ def create_artist_submission():
   # TODO: insert form data as a new Venue record in the db, instead
 
   form = ArtistForm()
+  # import pdb; pdb.set_trace()
   try:
     data = Artist(
-      name = form.name.data,
-      city = form.city.data,
-      state = form.state.data,
-      address = form.address.data,
-      phone = form.phone.data,
-      genres = form.genres.data,
-      facebook_link = form.facebook_link.data
-    )
-
-    flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    except:
-      #on unsuccessful db insert, flash an error instead.
-      flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-      db.session.rollback()
-    finally:
-      db.session.close()
-      return render_template('pages/home.html')
-
+        name = form.name.data,
+        city = form.city.data,
+        state = form.state.data,
+        phone = form.phone.data,
+        genres = form.genres.data,
+        facebook_link = form.facebook_link.data
+      )
     # check if artist exists already
-    exists = bool(Venue.query.filter_by(name = data.name, address = data.address, phone=data.phone))
+    exists = bool(Artist.query.filter_by(name = data.name, phone=data.phone).first())
     if exists:
       # avoid saving duplicate venues
       flash('Error! Artist ' + request.form['name'] + ' already exists!')
@@ -638,15 +628,12 @@ def create_artist_submission():
     db.session.rollback()
   finally:
     db.session.close()
+    return render_template('pages/home.html')
+
+
   # TODO: modify data to be the data object returned from db insertion
 
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-  return render_template('pages/home.html')
-
-
+  
 #  Shows
 #  ----------------------------------------------------------------
 
