@@ -701,7 +701,12 @@ def create_show_submission():
         flash('Error! Artist with id ' + form.artist_id.data + 'does not exist!')
       elif not venue:
         flash('Error! Venue with id ' + form.venue_id.data + 'does not exist!')
-      
+      else:
+        data = Show(
+          start_time = form.start_time.data,
+          venue = venue,
+          artist = artist
+        )
 
     except expression as identifier:
       pass
